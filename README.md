@@ -10,7 +10,7 @@ Interface consists of 7 methods:
 (insert-char buffer character) ;; enter a character into the buffer moving the cursor left
 (cursor-left buffer)           ;; move cursor left
 (cursor-right buffer)          ;; move cursor right
-(delete-left buffer)           ;; delete character to the right, backspace
-(delete-right buffer)          ;; delete character to the left, delete
+(delete-left buffer)           ;; delete character to the left, backspace
+(delete-right buffer)          ;; delete character to the right, delete
 (extract-text buffer)          ;; remove gap buffer and return the whole string
 ```
