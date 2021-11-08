@@ -41,3 +41,9 @@
 (g/insert-char buf "y")
 
 (assert (= (string (g/extract-text buf true)) "fyy_oo"))
+
+(g/insert-string buf "hello, world")
+
+(pp (buf :buffer))
+(assert (= (string (g/extract-text buf true)) "fyyhello, world_oo"))
+

@@ -6,6 +6,17 @@
     :gap-end 0
     :buffer @""})
 
+(defn extract-text
+  [buf & tst]
+  (var text (buffer/slice (get buf :buffer) 0 (get buf :cursor)))
+  (when tst
+    (buffer/push-string text "_"))
+  (cond (> (length (get buf :buffer)) (get buf :gap-end))
+    (do
+      (def txt2 (buffer/slice (get buf :buffer) (get buf :gap-end)))
+      (buffer/push-string text txt2)))
+  text)
+
 (defn new-buffer
   [size]
   (let [initsize (max size *MIN_BUF_SIZE*)
@@ -13,7 +24,7 @@
     (set (nb :size) initsize)
     (set (nb :cursor) 0)
     (set (nb :gap-end) initsize)
-    (set (nb :buffer) (buffer/new initsize))
+    (set (nb :buffer) (buffer/new-filled initsize))
     nb))
 
 (defn- buffer-front
@@ -59,6 +70,14 @@
       (set (buf :gap-end) (- nsize (buffer-back buf)))
       (set (buf :size) nsize)))
 
+(defn buffer-move
+  "move buffer with cursor"
+  [buf]
+  (let [c (buf :cursor)
+        e (buf :gap-end)]
+    (pp (buffer/slice (buf :buffer) 0 c))
+    (pp (buffer/slice (buf :buffer) c))))
+
 (defn insert-char
   "insert character into the gap buffer"
   [buf c]
@@ -68,6 +87,12 @@
     (set (buf :buffer) (put (get buf :buffer) (get buf :cursor) ch))
     (++ (buf :cursor))))
 
+(defn insert-string
+  "insert string into the gap buffer"
+  [buf str]
+  (set (buf :buffer) (buffer/blit (get buf :buffer) str (get buf :cursor)))
+  (set (buf :cursor) (+ (buf :cursor) (length str))))
+
 (defn cursor-left
   "move gap buffer to the left"
   [buf]
@@ -75,14 +100,16 @@
     (-- (buf :gap-end))
     (-- (buf :cursor))
     (let [cursor ((get buf :cursor) (get buf :buffer))]
-      (set (buf :buffer) (put (get buf :buffer) (get buf :gap-end) cursor)))))
+      (put (buf :buffer) (buf :gap-end) cursor)
+      (put (buf :buffer) (buf :cursor) 0))))
 
 (defn cursor-right
-  "move gap buffer to the left"
+  "move gap buffer to the right"
   [buf]
   (when (< (get buf :gap-end) (get buf :size))
     (let [egap ((get buf :gap-end) (get buf :buffer))]
-      (set (buf :buffer) (put (get buf :buffer) (get buf :cursor) egap)))
+      (put (buf :buffer) (buf :cursor) egap)
+      (put (buf :buffer) (buf :gap-end) 0))
     (++ (buf :gap-end))
     (++ (buf :cursor))))
 
@@ -90,7 +117,8 @@
   "delete the character to the left of the cursor"
   [buf]
   (when (> (get buf :cursor) 0)
-    (-- (buf :cursor)))
+    (-- (buf :cursor))
+    (put (buf :buffer) (buf :cursor) 0))
   (when (< (buffer-used buf) (/ (get buf :size) 4))
     (buffer-shrink buf (/ (get buf :size) 2))))
 
@@ -99,19 +127,9 @@
   [buf]
   (prompt :result
     (when (< (get buf :gap-end) (get buf :size))
-      (++ (buf :gap-end)))
+      (++ (buf :gap-end))
+      (put (buf :buffer) (dec (buf :gap-end)) 0))
     (when (< (buffer-used buf) (/ (get buf :size) 4))
       (return :result (buffer-shrink buf (/ (get buf :size) 2))))
     (return :result buf)))
-
-(defn extract-text
-  [buf & tst]
-  (var text (buffer/slice (get buf :buffer) 0 (get buf :cursor)))
-  (when tst
-    (buffer/push-string text "_"))
-  (cond (> (length (get buf :buffer)) (get buf :gap-end))
-    (do
-      (def txt2 (buffer/slice (get buf :buffer) (get buf :gap-end)))
-      (buffer/push-string text txt2))
-    text))
 
