@@ -70,14 +70,6 @@
       (set (buf :gap-end) (- nsize (buffer-back buf)))
       (set (buf :size) nsize)))
 
-(defn buffer-move
-  "move buffer with cursor"
-  [buf]
-  (let [c (buf :cursor)
-        e (buf :gap-end)]
-    (pp (buffer/slice (buf :buffer) 0 c))
-    (pp (buffer/slice (buf :buffer) c))))
-
 (defn insert-char
   "insert character into the gap buffer"
   [buf c]
