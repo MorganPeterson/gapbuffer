@@ -88,7 +88,7 @@
 (defn cursor-left
   "move gap buffer to the left"
   [buf]
-  (when (> (get buf :b-cursor) 0)
+  (when (> (get buf :cursor) 0)
     (-- (buf :gap-end))
     (-- (buf :cursor))
     (let [cursor ((get buf :cursor) (get buf :buffer))]
@@ -117,11 +117,9 @@
 (defn delete-right
   "delete the character to the right of the cursor"
   [buf]
-  (prompt :result
     (when (< (get buf :gap-end) (get buf :size))
+      (put (buf :buffer) (buf :gap-end) 0))
       (++ (buf :gap-end))
-      (put (buf :buffer) (dec (buf :gap-end)) 0))
     (when (< (buffer-used buf) (/ (get buf :size) 4))
-      (return :result (buffer-shrink buf (/ (get buf :size) 2))))
-    (return :result buf)))
+      (buffer-shrink buf (/ (get buf :size) 2))))
 
