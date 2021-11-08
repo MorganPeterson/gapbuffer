@@ -4,7 +4,7 @@ This is a pure Janet module for using a gap buffer data structure in your code.
 
 # Getting Started
 
-Interface consists of 7 methods:
+Interface consists of 8 methods:
 ```lisp
 (new-buffer buf-size)          ;; create a new buffer table
 (insert-char buffer character) ;; insert a character into the buffer under the cursor moving the cursor one space to the left
