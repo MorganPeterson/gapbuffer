@@ -105,7 +105,7 @@
     (++ (buf :gap-end))
     (++ (buf :cursor))))
 
-(defn move-gap
+(defn- move-gap
   "move cursor and gap to a given index"
   [buf index]
   (let [cursor (buf :cursor)
