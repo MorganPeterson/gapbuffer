@@ -105,6 +105,27 @@
     (++ (buf :gap-end))
     (++ (buf :cursor))))
 
+(defn- move-gap
+  "move cursor and gap to a given index"
+  [buf index]
+  (let [cursor (buf :cursor)
+        size (buf :size)]
+    (cond
+      (and (< index cursor) (>= index 0))
+      (loop [i :range [index cursor]]
+        (cursor-left buf))
+      (and (> index cursor) (< index size))
+      (loop [i :range [cursor index]]
+        (cursor-right buf)))))
+
+(defn move-cursor-to
+  "convenience function for move-gap"
+  [buf type & pos]
+  (case type
+    :begin (move-gap buf 0)
+    :end (move-gap buf (dec (buf :size)))
+    :index (move-gap buf (first pos))))
+
 (defn delete-left
   "delete the character to the left of the cursor"
   [buf]

@@ -46,3 +46,19 @@
 
 (assert (= (string (g/extract-text buf true)) "fyyhello, world_oo"))
 
+(g/move-cursor-to buf :begin)
+
+(assert (= (string (g/extract-text buf true)) "_fyyhello, worldoo"))
+
+(g/move-cursor-to buf :end)
+
+(assert (= (string (g/extract-text buf true)) "fyyhello, worldoo_"))
+
+(g/move-cursor-to buf :index 8)
+
+(assert (= (string (g/extract-text buf true)) "fyyhello_, worldoo"))
+
+# check if cursor is already at index
+(g/move-cursor-to buf :index 8)
+
+(assert (= (string (g/extract-text buf true)) "fyyhello_, worldoo"))
