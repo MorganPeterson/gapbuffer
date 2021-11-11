@@ -50,6 +50,8 @@
 
 (assert (= (string (g/extract-text buf true)) "_fyyhello, worldoo"))
 
+(g/cursor-right buf)
+(g/cursor-right buf)
 (g/move-cursor-to buf :end)
 
 (assert (= (string (g/extract-text buf true)) "fyyhello, worldoo_"))

@@ -112,19 +112,33 @@
         size (buf :size)]
     (cond
       (and (< index cursor) (>= index 0))
-      (loop [i :range [index cursor]]
-        (cursor-left buf))
-      (and (> index cursor) (< index size))
-      (loop [i :range [cursor index]]
-        (cursor-right buf)))))
+      (let [x (buffer/slice (buf :buffer) index cursor)
+            size (- cursor index)
+            new-gap (buffer/new-filled size)]
+        (buffer/blit (buf :buffer) x (- (buf :gap-end) size))
+        (buffer/blit (buf :buffer) new-gap index)
+        (set (buf :gap-end) (- (buf :gap-end) size))
+        (set (buf :cursor) index))
+      (and (> index cursor) (<= index size))
+      (let [new-size (- index (buf :gap-end))
+            new-gap (buffer/new-filled new-size)
+            x (buffer/slice
+                (buf :buffer)
+                (buf :gap-end)
+                (+ (buf :gap-end) new-size))] 
+        (buffer/blit (buf :buffer) x cursor)
+        (buffer/blit (buf :buffer) new-gap (buf :gap-end))
+        (set (buf :cursor) (+ cursor (- index (buf :gap-end))))
+        (set (buf :gap-end) (+ (buf :gap-end) new-size))))))
 
 (defn move-cursor-to
   "convenience function for move-gap"
   [buf type & pos]
-  (case type
-    :begin (move-gap buf 0)
-    :end (move-gap buf (dec (buf :size)))
-    :index (move-gap buf (first pos))))
+  (when (or (not= type :index) (> (length pos) 0))
+    (case type
+      :begin (move-gap buf 0)
+      :end (move-gap buf (buf :size))
+      :index (move-gap buf (first pos)))))
 
 (defn delete-left
   "delete the character to the left of the cursor"
