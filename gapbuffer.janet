@@ -9,7 +9,7 @@
 (defn extract-text
   [buf & tst]
   (var text (buffer/slice (get buf :buffer) 0 (get buf :cursor)))
-  (when tst
+  (when (and (> (length tst) 0) (tst 0))
     (buffer/push-string text "_"))
   (cond (> (length (get buf :buffer)) (get buf :gap-end))
     (do
