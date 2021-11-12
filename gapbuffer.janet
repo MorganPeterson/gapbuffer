@@ -72,21 +72,21 @@
   "insert character into the gap buffer"
   [buf c]
   (let [ch (get (string/bytes c) 0)]
-    (when (= (get buf :cursor) (get buf :gap-end))
-      (set (buf :buffer) (buffer-grow buf (* (get buf :size) 2))))
-    (set (buf :buffer) (put (get buf :buffer) (get buf :cursor) ch))
+    (when (= (buf :cursor) (buf :gap-end))
+      (set (buf :buffer) (buffer-grow buf (* (buf :size) 2))))
+    (set (buf :buffer) (put (buf :buffer) (buf :cursor) ch))
     (++ (buf :cursor))))
 
 (defn insert-string
   "insert string into the gap buffer"
   [buf str]
-  (set (buf :buffer) (buffer/blit (get buf :buffer) str (get buf :cursor)))
-  (set (buf :cursor) (+ (buf :cursor) (length str))))
+  (each c str
+    (insert-char buf (string/from-bytes c))))
 
 (defn cursor-left
   "move gap buffer to the left"
   [buf]
-  (when (> (get buf :cursor) 0)
+  (when (> (buf :cursor) 0)
     (-- (buf :gap-end))
     (-- (buf :cursor))
     (let [cursor ((get buf :cursor) (get buf :buffer))]

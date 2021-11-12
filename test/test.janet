@@ -68,9 +68,21 @@
 (assert (= (- (length (buf :buffer)) (g/buffer-used buf)) 495) "buffer available")
 (assert (= (string (g/extract-text buf true)) "_fyyhello, worldoo"))
 
+(g/cursor-left buf)
+
+(assert (= (g/buffer-used buf) 17) "buffer used")
+(assert (= (- (length (buf :buffer)) (g/buffer-used buf)) 495) "buffer available")
+(assert (= (string (g/extract-text buf true)) "_fyyhello, worldoo"))
+
 (g/cursor-right buf)
 (g/cursor-right buf)
 (g/move-cursor-to buf :end)
+
+(assert (= (g/buffer-used buf) 17) "buffer used")
+(assert (= (- (length (buf :buffer)) (g/buffer-used buf)) 495) "buffer available")
+(assert (= (string (g/extract-text buf true)) "fyyhello, worldoo_"))
+
+(g/cursor-right buf)
 
 (assert (= (g/buffer-used buf) 17) "buffer used")
 (assert (= (- (length (buf :buffer)) (g/buffer-used buf)) 495) "buffer available")
