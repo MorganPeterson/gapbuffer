@@ -81,7 +81,6 @@
 (assert (= (g/buffer-used buf) 17) "buffer used")
 (assert (= (- (length (buf :buffer)) (g/buffer-used buf)) 495) "buffer available")
 (assert (= (string (g/extract-text buf)) "fyyhello, worldoo"))
-(print (buf :cursor))
 
 (g/move-cursor-to buf :index 8)
 
