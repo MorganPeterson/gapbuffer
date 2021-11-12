@@ -25,17 +25,17 @@
     (set (nb :buffer) (buffer/new-filled initsize))
     nb))
 
-(defn- buffer-front
+(defn buffer-front
   "size of text before cursor"
   [buf]
   (get buf :cursor))
 
-(defn- buffer-back
+(defn buffer-back
   "size of text after cursor"
   [buf]
   (- (get buf :size) (get buf :gap-end)))
 
-(defn- buffer-used
+(defn buffer-used
   "total number of used characters"
   [buf]
   (+ (buffer-front buf) (buffer-back buf)))
