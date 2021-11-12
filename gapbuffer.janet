@@ -11,10 +11,8 @@
   (var text (buffer/slice (get buf :buffer) 0 (get buf :cursor)))
   (when (and (> (length tst) 0) (tst 0))
     (buffer/push-string text "_"))
-  (cond (> (length (get buf :buffer)) (get buf :gap-end))
-    (do
-      (def txt2 (buffer/slice (get buf :buffer) (get buf :gap-end)))
-      (buffer/push-string text txt2)))
+  (cond (>= (length (get buf :buffer)) (get buf :gap-end))
+    (buffer/push text (buffer/slice (get buf :buffer) (get buf :gap-end))))
   text)
 
 (defn new-buffer
@@ -109,27 +107,24 @@
   "move cursor and gap to a given index"
   [buf index]
   (let [cursor (buf :cursor)
-        size (buf :size)]
+        size (buf :size)
+        new-size (- (buf :gap-end) (buf :cursor))]
     (cond
-      (and (< index cursor) (>= index 0))
-      (let [x (buffer/slice (buf :buffer) index cursor)
-            size (- cursor index)
-            new-gap (buffer/new-filled size)]
-        (buffer/blit (buf :buffer) x (- (buf :gap-end) size))
+      (and (<= index cursor) (>= index 0))
+      (let [new-gap (buffer/new-filled (- cursor index))
+            x (buffer/slice (buf :buffer) index cursor)]
+        (set (buf :cursor) index)
+        (set (buf :gap-end) (+ index new-size))
         (buffer/blit (buf :buffer) new-gap index)
-        (set (buf :gap-end) (- (buf :gap-end) size))
-        (set (buf :cursor) index))
-      (and (> index cursor) (<= index size))
-      (let [new-size (- index (buf :gap-end))
-            new-gap (buffer/new-filled new-size)
-            x (buffer/slice
-                (buf :buffer)
-                (buf :gap-end)
-                (+ (buf :gap-end) new-size))] 
-        (buffer/blit (buf :buffer) x cursor)
-        (buffer/blit (buf :buffer) new-gap (buf :gap-end))
-        (set (buf :cursor) (+ cursor (- index (buf :gap-end))))
-        (set (buf :gap-end) (+ (buf :gap-end) new-size))))))
+        (buffer/blit (buf :buffer) x (buf :gap-end)))
+      (and (> index cursor))
+      (let [new-gap (buffer/new-filled new-size)
+            new-space (- index cursor)
+            x (buffer/slice (buf :buffer) (buf :gap-end) (+ (buf :gap-end) new-space))]
+        (set (buf :cursor) index)
+        (set (buf :gap-end) (+ index new-size))
+        (buffer/blit (buf :buffer) new-gap index)
+        (buffer/blit (buf :buffer) x (- index new-space))))))
 
 (defn move-cursor-to
   "convenience function for move-gap"
@@ -137,7 +132,7 @@
   (when (or (not= type :index) (> (length pos) 0))
     (case type
       :begin (move-gap buf 0)
-      :end (move-gap buf (buf :size))
+      :end (move-gap buf (length (extract-text buf)))
       :index (move-gap buf (first pos)))))
 
 (defn delete-left
